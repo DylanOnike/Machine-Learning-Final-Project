@@ -54,47 +54,14 @@ print("=" * 65)
 # This mirrors the real dataset's exact distribution so the code works
 # identically whether you load from CSV or use this synthetic version.
 # To use the real file: df = pd.read_csv("heart.csv")
-np.random.seed(SEED)
-n = 303
+df = pd.read_csv("heart.csv")
+df["target"] = (df["HeartDisease"]).astype(int)
+df = df.drop(columns=["HeartDisease"])
 
-age       = np.random.randint(29, 78, n)
-sex       = np.random.choice([0, 1], n, p=[0.32, 0.68])         # 0=F, 1=M
-cp        = np.random.choice([0, 1, 2, 3], n, p=[0.47, 0.17, 0.29, 0.07])
-trestbps  = np.clip(np.random.normal(131, 18, n).astype(int), 90, 200)
-chol      = np.clip(np.random.normal(246, 51, n).astype(int), 130, 564)
-fbs       = np.random.choice([0, 1], n, p=[0.85, 0.15])
-restecg   = np.random.choice([0, 1, 2], n, p=[0.50, 0.48, 0.02])
-thalach   = np.clip(np.random.normal(149, 23, n).astype(int), 71, 202)
-exang     = np.random.choice([0, 1], n, p=[0.67, 0.33])
-oldpeak   = np.round(np.clip(np.random.exponential(1.04, n), 0, 6.2), 1)
-slope     = np.random.choice([0, 1, 2], n, p=[0.21, 0.47, 0.32])
-ca        = np.random.choice([0, 1, 2, 3], n, p=[0.58, 0.22, 0.13, 0.07])
-thal      = np.random.choice([0, 1, 2], n, p=[0.08, 0.54, 0.38])
-
-# Target correlated with risk factors (realistic)
-logit = (
-    -4.5
-    + 0.03  * (age - 50)
-    + 0.40  * sex
-    - 0.50  * (cp == 0).astype(int)
-    + 0.60  * (cp == 3).astype(int)
-    + 0.005 * (trestbps - 130)
-    + 0.003 * (chol - 246)
-    + 0.80  * exang
-    + 0.40  * oldpeak
-    - 0.005 * (thalach - 149)
-    + 0.60  * (thal == 2).astype(int)
-    + 0.70  * ca
-)
-prob   = 1 / (1 + np.exp(-logit))
-target = (np.random.random(n) < prob).astype(int)
-
-df = pd.DataFrame({
-    "age": age, "sex": sex, "cp": cp, "trestbps": trestbps,
-    "chol": chol, "fbs": fbs, "restecg": restecg, "thalach": thalach,
-    "exang": exang, "oldpeak": oldpeak, "slope": slope,
-    "ca": ca, "thal": thal, "target": target
-})
+# Encode categorical columns
+from sklearn.preprocessing import LabelEncoder
+for col in df.select_dtypes(include="object").columns:
+    df[col] = LabelEncoder().fit_transform(df[col])
 
 print(f"\n[1] Dataset Loaded")
 print(f"    Rows: {df.shape[0]}  |  Columns: {df.shape[1]}")
