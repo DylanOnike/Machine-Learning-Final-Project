@@ -55,8 +55,6 @@ print("=" * 65)
 # identically whether you load from CSV or use this synthetic version.
 # To use the real file: df = pd.read_csv("heart.csv")
 df = pd.read_csv("heart.csv")
-df["target"] = (df["HeartDisease"]).astype(int)
-df = df.drop(columns=["HeartDisease"])
 
 # Encode categorical columns
 from sklearn.preprocessing import LabelEncoder
@@ -65,7 +63,7 @@ for col in df.select_dtypes(include="object").columns:
 
 print(f"\n[1] Dataset Loaded")
 print(f"    Rows: {df.shape[0]}  |  Columns: {df.shape[1]}")
-print(f"    Target distribution: No Disease={sum(target==0)} | Disease={sum(target==1)}")
+print(f"    Target distribution: No Disease={sum(df['target']==0)} | Disease={sum(df['target']==1)}")
 print(f"    Missing values: {df.isnull().sum().sum()}")
 
 # ── 2. Exploratory Data Analysis ──────────────────────────────────────────────
